@@ -15,8 +15,6 @@ import { set } from "lodash";
 
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
-
-import { KafkaProducerCompactConfig } from "@pagopa/fp-ts-kafkajs/dist/lib/IoKafkaTypes";
 import { CommaSeparatedListOf } from "./types";
 
 // global app configuration

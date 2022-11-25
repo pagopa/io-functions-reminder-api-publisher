@@ -1,11 +1,10 @@
-import { CosmosClient } from "@azure/cosmos";
 import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import {
   common as azurestorageCommon,
   createBlobService,
   createFileService,
   createQueueService,
-  createTableService
+  createTableService,
 } from "azure-storage";
 
 import * as A from "fp-ts/lib/Array";
@@ -19,7 +18,7 @@ import { sequenceT } from "fp-ts/lib/Apply";
 import fetch from "node-fetch";
 import { getConfig, IConfig } from "./config";
 
-type ProblemSource = "AzureCosmosDB" | "AzureStorage" | "Config" | "Url";
+type ProblemSource = "AzureStorage" | "Config" | "Url";
 // eslint-disable-next-line functional/prefer-readonly-type, @typescript-eslint/naming-convention
 export type HealthProblem<S extends ProblemSource> = string & { __source: S };
 export type HealthCheck<
@@ -37,7 +36,7 @@ const formatProblem = <S extends ProblemSource>(
 const toHealthProblems = <S extends ProblemSource>(source: S) => (
   e: unknown
 ): ReadonlyArray<HealthProblem<S>> => [
-  formatProblem(source, E.toError(e).message)
+  formatProblem(source, E.toError(e).message),
 ];
 
 /**
@@ -48,23 +47,13 @@ const toHealthProblems = <S extends ProblemSource>(source: S) => (
 export const checkConfigHealth = (): HealthCheck<"Config", IConfig> =>
   pipe(
     TE.fromEither(getConfig()),
-    TE.mapLeft(errors =>
-      errors.map(e =>
+    TE.mapLeft((errors) =>
+      errors.map((e) =>
         // give each problem its own line
         formatProblem("Config", readableReport([e]))
       )
     )
   );
-
-/**
- * Return a CosmosClient
- */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const buildCosmosClient = (dbUri: string, dbKey?: string) =>
-  new CosmosClient({
-    endpoint: dbUri,
-    key: dbKey
-  });
 
 /**
  * Check the application can connect to an Azure Storage
@@ -87,10 +76,10 @@ export const checkAzureStorageHealth = (
       createBlobService,
       createFileService,
       createQueueService,
-      createTableService
+      createTableService,
     ]
       // for each, create a task that wraps getServiceProperties
-      .map(createService =>
+      .map((createService) =>
         TE.tryCatch(
           () =>
             new Promise<
@@ -108,7 +97,7 @@ export const checkAzureStorageHealth = (
       ),
     // run each taskEither and gather validation errors from each one of them, if any
     A.sequence(applicativeValidation),
-    TE.map(_ => true)
+    TE.map((_) => true)
   );
 };
 
@@ -122,7 +111,7 @@ export const checkAzureStorageHealth = (
 export const checkUrlHealth = (url: string): HealthCheck<"Url", true> =>
   pipe(
     TE.tryCatch(() => fetch(url, { method: "HEAD" }), toHealthProblems("Url")),
-    TE.map(_ => true)
+    TE.map((_) => true)
   );
 
 /**
@@ -139,13 +128,13 @@ export const checkApplicationHealth = (): HealthCheck<ProblemSource, true> => {
   return pipe(
     void 0,
     TE.of,
-    TE.chain(_ => checkConfigHealth()),
-    TE.chain(config =>
+    TE.chain((_) => checkConfigHealth()),
+    TE.chain((config) =>
       // run each taskEither and collect validation errors from each one of them, if any
       sequenceT(applicativeValidation)(
         checkAzureStorageHealth(config.QueueStorageConnection)
       )
     ),
-    TE.map(_ => true)
+    TE.map((_) => true)
   );
 };
