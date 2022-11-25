@@ -20,9 +20,9 @@ import { KafkaProducerCompactConfig } from "@pagopa/fp-ts-kafkajs/dist/lib/IoKaf
 import { CommaSeparatedListOf } from "./types";
 
 // global app configuration
-export type IDecodableConfig = t.TypeOf<typeof IDecodableConfig>;
+export type IConfig = t.TypeOf<typeof IConfig>;
 // eslint-disable-next-line @typescript-eslint/ban-types
-export const IDecodableConfig = t.interface({
+export const IConfig = t.interface({
   MESSAGES_BROKERS: CommaSeparatedListOf(NonEmptyString),
   MESSAGES_TOPIC: NonEmptyString,
 
@@ -31,13 +31,6 @@ export const IDecodableConfig = t.interface({
 
   isProduction: t.boolean,
 });
-export type IConfig = IDecodableConfig;
-export const IConfig = new t.Type<IConfig>(
-  "IConfig",
-  (u: unknown): u is IConfig => IDecodableConfig.is(u),
-  (input, context) => IDecodableConfig.validate(input, context),
-  t.identity
-);
 
 export const envConfig = {
   ...process.env,
