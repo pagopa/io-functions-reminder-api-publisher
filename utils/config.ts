@@ -17,12 +17,12 @@ import { readableReport } from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 
 import { KafkaProducerCompactConfig } from "@pagopa/fp-ts-kafkajs/dist/lib/IoKafkaTypes";
-import { AzureEventhubSasFromString } from "@pagopa/fp-ts-kafkajs/dist/lib/KafkaProducerCompact";
+import { CommaSeparatedListOf } from "./types";
 
 const isStringKeysRecord = (i: unknown): i is Record<string, unknown> =>
   typeof i === "object" &&
   i !== null &&
-  !Object.keys(i).some(property => typeof property !== "string");
+  !Object.keys(i).some((property) => typeof property !== "string");
 
 const createNotStringKeysRecordErrorL = (
   input: unknown,
@@ -31,8 +31,8 @@ const createNotStringKeysRecordErrorL = (
   {
     context,
     message: "input is not a valid string keys record",
-    value: input
-  }
+    value: input,
+  },
 ];
 
 /**
@@ -49,7 +49,7 @@ export const nestifyPrefixedType = (
 ): Record<string, unknown> =>
   pipe(
     env,
-    R.filterWithIndex(fieldName => fieldName.split("_")[0] === prefix),
+    R.filterWithIndex((fieldName) => fieldName.split("_")[0] === prefix),
     R.reduceWithIndex(S.Ord)({}, (k, b, a) =>
       set(
         b,
@@ -81,7 +81,7 @@ export const KafkaProducerCompactConfigFromEnv = new t.Type<
         isStringKeysRecord,
         createNotStringKeysRecordErrorL(input, context)
       ),
-      E.chainW(inputRecord =>
+      E.chainW((inputRecord) =>
         KafkaProducerCompactConfig.validate(
           nestifyPrefixedType(inputRecord, "TARGETKAFKA"),
           context
@@ -94,40 +94,18 @@ export const KafkaProducerCompactConfigFromEnv = new t.Type<
 export type IDecodableConfig = t.TypeOf<typeof IDecodableConfig>;
 // eslint-disable-next-line @typescript-eslint/ban-types
 export const IDecodableConfig = t.interface({
-  APIM_BASE_URL: NonEmptyString,
-  APIM_SUBSCRIPTION_KEY: NonEmptyString,
-  APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
+  MESSAGES_BROKERS: CommaSeparatedListOf(NonEmptyString),
+  MESSAGES_TOPIC: NonEmptyString,
 
-  AzureWebJobsStorage: NonEmptyString,
-
-  COSMOSDB_CONNECTION_STRING: NonEmptyString,
-  COSMOSDB_KEY: NonEmptyString,
-  COSMOSDB_NAME: NonEmptyString,
-  COSMOSDB_URI: NonEmptyString,
-
-  INTERNAL_STORAGE_CONNECTION_STRING: NonEmptyString,
-
-  MESSAGE_CONTENT_STORAGE_CONNECTION: NonEmptyString,
-  MESSAGE_PAYMENT_UPDATER_FAILURE_QUEUE_NAME: NonEmptyString,
-
-  MESSAGE_STATUS_FOR_REMINDER_TOPIC_PRODUCER_CONNECTION_STRING: AzureEventhubSasFromString,
-  MESSAGE_STATUS_FOR_VIEW_BROKERS: NonEmptyString,
-  MESSAGE_STATUS_FOR_VIEW_TOPIC_CONSUMER_CONNECTION_STRING: NonEmptyString,
-  MESSAGE_STATUS_FOR_VIEW_TOPIC_CONSUMER_GROUP: NonEmptyString,
-  MESSAGE_STATUS_FOR_VIEW_TOPIC_NAME: NonEmptyString,
-  MESSAGE_STATUS_FOR_VIEW_TOPIC_PRODUCER_CONNECTION_STRING: NonEmptyString,
-
-  MESSAGE_VIEW_PAYMENT_UPDATE_FAILURE_QUEUE_NAME: NonEmptyString,
-  MESSAGE_VIEW_UPDATE_FAILURE_QUEUE_NAME: NonEmptyString,
   PN_SERVICE_ID: NonEmptyString,
   QueueStorageConnection: NonEmptyString,
 
-  isProduction: t.boolean
+  isProduction: t.boolean,
 });
 
 const MessagesKafkaTopicConfig = t.type({
   MESSAGES_TOPIC_CONNECTION_STRING: NonEmptyString,
-  MESSAGES_TOPIC_NAME: NonEmptyString
+  MESSAGES_TOPIC_NAME: NonEmptyString,
 });
 type MessagesKafkaTopicConfig = t.TypeOf<typeof MessagesKafkaTopicConfig>;
 
@@ -164,7 +142,7 @@ export const IConfig = new t.Type<IConfig>(
 
 export const envConfig = {
   ...process.env,
-  isProduction: process.env.NODE_ENV === "production"
+  isProduction: process.env.NODE_ENV === "production",
 };
 
 // No need to re-evaluate this object for each call

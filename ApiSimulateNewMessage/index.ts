@@ -12,6 +12,7 @@ import { secureExpressApp } from "@pagopa/io-functions-commons/dist/src/utils/ex
 import { setAppContext } from "@pagopa/io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { avroMessageFormatter } from "../utils/formatter/messagesAvroFormatter";
 import { PostMessage } from "./handler";
+import { getConfigOrThrow } from "../utils/config";
 
 // eslint-disable-next-line functional/no-let
 let logger: Context["log"] | undefined;
@@ -20,13 +21,15 @@ const contextTransport = new AzureContextTransport(() => logger, {
 });
 winston.add(contextTransport);
 
+const config = getConfigOrThrow();
+
 const messagesConfig = {
   clientId: "REMINDER_TEST",
-  brokers: ["localhost:9094"],
+  brokers: [...config.MESSAGES_BROKERS],
   maxInFlightRequests: 1,
   idempotent: true,
   transactionalId: "IO_REMINDER_TEST",
-  topic: "messages",
+  topic: config.MESSAGES_TOPIC,
 };
 
 const messageTopic = {
