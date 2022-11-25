@@ -145,6 +145,9 @@ export const envConfig = {
   isProduction: process.env.NODE_ENV === "production",
 };
 
+console.log("ENV CONFIG");
+console.log(envConfig);
+
 // No need to re-evaluate this object for each call
 const errorOrConfig: t.Validation<IConfig> = IConfig.decode(envConfig);
 
