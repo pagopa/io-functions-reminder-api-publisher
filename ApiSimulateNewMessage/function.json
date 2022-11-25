@@ -1,11 +1,11 @@
 {
   "bindings": [
     {
-      "authLevel": "function",
+      "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "route": "reminder/messages",
+      "route": "v1/messages",
       "methods": [
         "post"
       ]
@@ -16,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/HttpTriggerFunction/index.js"
+  "scriptFile": "../dist/ApiSimulateNewMessage/index.js"
 }

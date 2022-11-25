@@ -2,13 +2,10 @@
   "version": "2.0",
   "logging": {
     "logLevel": {
-      "default": "Trace"
+      "default": "Debug"
     }
   },
   "extensions": {
-    "http": {
-      "routePrefix": ""
-    },
     "tracing": {
       "traceInputsAndOutputs": false,
       "traceReplayEvents": false
