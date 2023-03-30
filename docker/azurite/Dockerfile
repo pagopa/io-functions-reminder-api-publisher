@@ -1,4 +1,4 @@
-FROM node:18.13.2-alpine as builder
+FROM node:18.13.0-alpine as builder
 
 WORKDIR /opt/azurite
 
