@@ -56,7 +56,7 @@
     "@pagopa/express-azure-functions": "^2.0.0",
     "@pagopa/fp-ts-kafkajs": "^0.3.0",
     "@pagopa/io-functions-commons": "^26.2.1",
-    "@pagopa/ts-commons": "^10.10.0",
+    "@pagopa/ts-commons": "^11.0.0",
     "applicationinsights": "^1.7.4",
     "avsc": "^5.7.7",
     "azure-storage": "^2.10.3",
